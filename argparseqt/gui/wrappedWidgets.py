@@ -69,7 +69,7 @@ def makeWidget(
         elif "serial" in sys.modules and dataType == typeHelpers.Serial:
             widget = SerialPortChooser(parent)
 
-        elif dataType == list or typing.get_origin(dataType) == list:
+        elif dataType == list or typeHelpers.get_origin(dataType) == list:
             widget = ListWidget(dataType, parent)
 
         else:
