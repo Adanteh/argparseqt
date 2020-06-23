@@ -2,7 +2,7 @@
 """ Widgets for displaying argparse arguments in a GUI """
 
 import argparse
-
+from typing import Dict, Any
 from qtpy import QtCore, QtWidgets
 
 from . import wrappedWidgets
@@ -14,7 +14,7 @@ class ArgDialog(QtWidgets.QDialog):
 
     valueAdjusted = QtCore.Signal()
 
-    def __init__(self, argParser, orphanGroupName="Main", parent=None, title="Settings"):
+    def __init__(self, argParser: argparse.ArgumentParser, orphanGroupName="Main", parent=None, title="Settings"):
         super().__init__(parent)
 
         self.argParser = argParser
@@ -36,10 +36,10 @@ class ArgDialog(QtWidgets.QDialog):
 
         self.resize(800, 400)
 
-    def setValues(self, values):
+    def setValues(self, values: Dict[str, Any]):
         return self.argparseWidget.setValues(values)
 
-    def getValues(self):
+    def getValues(self) -> Dict[str, Any]:
         return self.argparseWidget.getValues()
 
 
@@ -67,7 +67,10 @@ class ArgparseListWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.widgetStack, stretch=1)
 
         self.orphanGroupname = orphanGroupName
+        self.createStackWidgets(self.groupedParser)
 
+    def createStackWidgets(self, groups: dict):
+        """Create stack widget for each one of the category settings"""
         for group, arguments in self.groupedParser.items():
             if group.title in ["positional arguments", "optional arguments"]:
                 groupName = self.orphanGroupname
@@ -87,6 +90,7 @@ class ArgparseListWidget(QtWidgets.QWidget):
             self.groupList.hide()
 
     def _addGroup(self, name, description):
+        """Adds the widget that will contain all parameters for our parser group"""
         self.groupList.addItem(name)
         groupWidget = ArgGroupWidget(name, description=description)
         groupWidget.valueAdjusted.connect(self.valueAdjusted.emit)
@@ -94,7 +98,7 @@ class ArgparseListWidget(QtWidgets.QWidget):
 
         return groupWidget
 
-    def setValues(self, values):
+    def setValues(self, values: Dict[str, Any]):
         for i in range(self.widgetStack.count()):
             groupName = self.groupList.item(i).text()
             if groupName in values:
@@ -102,7 +106,7 @@ class ArgparseListWidget(QtWidgets.QWidget):
             else:
                 self.widgetStack.widget(i).setValues(values)
 
-    def getValues(self):
+    def getValues(self) -> Dict[str, Any]:
         settings = {}
         for i in range(self.widgetStack.count()):
             groupName = self.groupList.item(i).text()
@@ -147,6 +151,7 @@ class ArgGroupWidget(QtWidgets.QWidget):
         self.valueAdjusted.emit()
 
     def addArguments(self, arguments):
+        """Adds an argparser argument to a group and creates a widget for it"""
         for argument in arguments:
             widget = wrappedWidgets.makeWidget(argument, self)
             widget.valueChanged.connect(self.onValueChanged)
@@ -157,37 +162,20 @@ class ArgGroupWidget(QtWidgets.QWidget):
 
             self.form.layout().addRow(argument.dest, widget)
 
-    def setValues(self, values):
+    def setValues(self, values: Dict[str, Any]):
+        """Gets values for the argument group"""
         for row in range(self.form.layout().rowCount()):
-            itemName = (
-                self.form.layout()
-                .itemAt(row, QtWidgets.QFormLayout.LabelRole)
-                .widget()
-                .text()
-            )
+            itemName = self.form.layout().itemAt(row, QtWidgets.QFormLayout.LabelRole).widget().text()
             if itemName in values:
-                widget = (
-                    self.form.layout()
-                    .itemAt(row, QtWidgets.QFormLayout.FieldRole)
-                    .widget()
-                )
+                widget = self.form.layout().itemAt(row, QtWidgets.QFormLayout.FieldRole).widget()
                 widget.setValue(values[itemName])
 
-    def getValues(self):
+    def getValues(self) -> Dict[str, Any]:
+        """Get values for this argument group"""
         values = {}
         for row in range(self.form.layout().rowCount()):
-            itemName = (
-                self.form.layout()
-                .itemAt(row, QtWidgets.QFormLayout.LabelRole)
-                .widget()
-                .text()
-            )
-            itemValue = (
-                self.form.layout()
-                .itemAt(row, QtWidgets.QFormLayout.FieldRole)
-                .widget()
-                .value()
-            )
+            itemName = self.form.layout().itemAt(row, QtWidgets.QFormLayout.LabelRole).widget().text()
+            itemValue = self.form.layout().itemAt(row, QtWidgets.QFormLayout.FieldRole).widget().value()
 
             values[itemName] = itemValue
 
