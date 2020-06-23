@@ -14,14 +14,14 @@ class ArgDialog(QtWidgets.QDialog):
 
     valueAdjusted = QtCore.Signal()
 
-    def __init__(self, argParser, orphanGroupName="Main", parent=None):
+    def __init__(self, argParser, orphanGroupName="Main", parent=None, title="Settings"):
         super().__init__(parent)
 
         self.argParser = argParser
         self.argparseWidget = ArgparseListWidget(self.argParser, orphanGroupName)
         self.argparseWidget.valueAdjusted.connect(self.valueAdjusted.emit)
 
-        self.setWindowTitle("Settings")
+        self.setWindowTitle(title)
 
         self.buttons = QtWidgets.QDialogButtonBox(self)
         self.buttons.addButton(QtWidgets.QDialogButtonBox.Ok)

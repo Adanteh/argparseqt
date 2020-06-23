@@ -26,7 +26,7 @@ class QtArgparsed:
             app = QtArgApp(
                 sys.argv, company=self.company, appname=self.appname
             )  # noqa: F841
-            dialog = ArgDialog(parser)
+            dialog = ArgDialog(parser, title=self.title)
             dialog.exec_()
             return dialog
 
