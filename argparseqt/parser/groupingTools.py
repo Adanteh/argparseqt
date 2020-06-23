@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-''' Utility functions for organizing arguments by their groups '''
+""" Utility functions for organizing arguments by their groups """
 
 import argparse
 
+
 def organizeIntoGroups(parser):
-    ''' Returns a dict where keys are argparse groups and values are dicts of name/argument pairs '''
+    """ Returns a dict where keys are argparse groups and values are dicts of name/argument pairs """
     groups = {}
 
     for group in parser._action_groups:
@@ -16,16 +17,17 @@ def organizeIntoGroups(parser):
 
     return groups
 
+
 def parseIntoGroups(parser):
-    ''' Returns a dict where keys are argparse group names and values are dicts of name/value pairs
+    """ Returns a dict where keys are argparse group names and values are dicts of name/value pairs
 
         Arguments that do not belong to a group will be stored in the top-level dict
-    '''
+    """
     args = vars(parser.parse_args())
     groups = {}
 
     for group in parser._action_groups:
-        if group.title in ['positional arguments', 'optional arguments']:
+        if group.title in ["positional arguments", "optional arguments"]:
             groupDict = groups
         else:
             groupName = group.title

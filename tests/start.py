@@ -16,7 +16,10 @@ def main():
 
     textSettings = parser.add_argument_group("Strings", description="Text input")
     textSettings.add_argument(
-        "--freetext", type=str, default="Enter freetext here", help="Type anything you want here"
+        "--freetext",
+        type=str,
+        default="Enter freetext here",
+        help="Type anything you want here",
     )
     textSettings.add_argument(
         "--pickText",

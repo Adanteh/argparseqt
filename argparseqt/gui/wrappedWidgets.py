@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' Widgets with a universal api for getting/setting convenience '''
+""" Widgets with a universal api for getting/setting convenience """
 
 import sys
 import pathlib
@@ -15,13 +15,16 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 from ..parser import typeHelpers
 
-def makeWidget(argumentOrType, parent=None, defaultValue=None, choices=None, helpText=None):
-    ''' Creates and returns a data type-appropriate wrapped-widget
+
+def makeWidget(
+    argumentOrType, parent=None, defaultValue=None, choices=None, helpText=None
+):
+    """ Creates and returns a data type-appropriate wrapped-widget
 
         Arguments with finite choices (including booleans) configured will display as a combo box
         Numeric arguments will display with a spin box
         Text and arguments with no specified data type will display with line edit
-    '''
+    """
     widget = None
     if isinstance(argumentOrType, argparse.Action):
         argument = argumentOrType
@@ -63,7 +66,7 @@ def makeWidget(argumentOrType, parent=None, defaultValue=None, choices=None, hel
         elif dataType == pathlib.Path:
             widget = FileChooser(parent)
 
-        elif 'serial' in sys.modules and dataType == typeHelpers.Serial:
+        elif "serial" in sys.modules and dataType == typeHelpers.Serial:
             widget = SerialPortChooser(parent)
 
         elif dataType == list or typing.get_origin(dataType) == list:
@@ -80,11 +83,13 @@ def makeWidget(argumentOrType, parent=None, defaultValue=None, choices=None, hel
 
     return widget
 
+
 class ResetableWidget(QtWidgets.QWidget):
-    ''' Wraps a widget in a horizontal box layout which also includes a reset button
+    """ Wraps a widget in a horizontal box layout which also includes a reset button
 
         Also adds the ability for text and spinbox widgets to accept and return `None` as a value
-    '''
+    """
+
     def __init__(self, widget, defaultValue):
         super().__init__(widget.parent())
         self.widget = widget
@@ -93,38 +98,36 @@ class ResetableWidget(QtWidgets.QWidget):
         self.nulled = True
 
         self.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred,
-            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed,
         )
 
         resetButton = QtWidgets.QToolButton(self)
         resetButton.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding,
         )
         resetButton.pressed.connect(self.reset)
-        resetButton.setText('↶')
+        resetButton.setText("↶")
 
         if defaultValue is None:
-            resetButton.setToolTip('Clear')
+            resetButton.setToolTip("Clear")
         else:
-            resetButton.setToolTip('Set default: ' + str(defaultValue))
+            resetButton.setToolTip("Set default: " + str(defaultValue))
 
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(widget)
         self.layout().addWidget(resetButton)
 
-        if hasattr(widget, 'valueChanged'):
+        if hasattr(widget, "valueChanged"):
             widget.valueChanged.connect(self.clearNull)
             self.valueChanged = widget.valueChanged
-        elif hasattr(widget, 'textChanged'):
+        elif hasattr(widget, "textChanged"):
             widget.textChanged.connect(self.clearNull)
             self.valueChanged = widget.textChanged
-        elif hasattr(widget, 'currentTextChanged'):
+        elif hasattr(widget, "currentTextChanged"):
             self.valueChanged = widget.currentTextChanged
 
-        if not hasattr(widget, 'clearValue') and hasattr(widget, 'clear'):
+        if not hasattr(widget, "clearValue") and hasattr(widget, "clear"):
             widget.clearValue = widget.clear
 
     def clearNull(self):
@@ -150,17 +153,17 @@ class ResetableWidget(QtWidgets.QWidget):
     def clearValue(self):
         self.setValue(None)
 
+
 class ListWidgetItem(QtWidgets.QWidget):
     def __init__(self, widget, parent=None):
         super().__init__(parent)
         self.widget = widget
 
         self.abandonButton = QtWidgets.QToolButton(self)
-        self.abandonButton.setText('🗑️')
+        self.abandonButton.setText("🗑️")
         self.abandonButton.pressed.connect(self.abandon)
         self.abandonButton.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding,
         )
 
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -169,7 +172,7 @@ class ListWidgetItem(QtWidgets.QWidget):
         self.layout().addWidget(self.abandonButton)
         self.layout().addWidget(self.widget)
 
-        patches = ['value', 'setValue', 'clearValue', 'valueChanged']
+        patches = ["value", "setValue", "clearValue", "valueChanged"]
         for prop in patches:
             setattr(self, prop, getattr(self.widget, prop))
 
@@ -178,6 +181,7 @@ class ListWidgetItem(QtWidgets.QWidget):
         idx = parentLayout.indexOf(self)
         parentLayout.takeAt(idx)
         self.setParent(None)
+
 
 class ListWidget(QtWidgets.QWidget):
     valueChanged = QtCore.Signal(list)
@@ -194,11 +198,13 @@ class ListWidget(QtWidgets.QWidget):
 
         self.childrenContainer = QtWidgets.QWidget(self)
         self.childrenContainer.setLayout(QtWidgets.QVBoxLayout())
-        self.childrenContainer.layout().setSpacing(int(self.childrenContainer.layout().spacing()/2))
+        self.childrenContainer.layout().setSpacing(
+            int(self.childrenContainer.layout().spacing() / 2)
+        )
         self.childrenContainer.layout().setContentsMargins(0, 0, 0, 0)
 
         self.addItemButton = QtWidgets.QToolButton(self)
-        self.addItemButton.setText('➕ Add item')
+        self.addItemButton.setText("➕ Add item")
         self.addItemButton.clicked.connect(self._addKid)
 
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -208,7 +214,9 @@ class ListWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.addItemButton)
 
     def _addKid(self, v=None):
-        listWidgetItem = ListWidgetItem(makeWidget(self.subDataType, self.childrenContainer), self.childrenContainer)
+        listWidgetItem = ListWidgetItem(
+            makeWidget(self.subDataType, self.childrenContainer), self.childrenContainer
+        )
         listWidgetItem.valueChanged.connect(self.onChildValueChanged)
 
         self.childrenContainer.layout().addWidget(listWidgetItem)
@@ -242,6 +250,7 @@ class ListWidget(QtWidgets.QWidget):
             w = self._addKid(v)
             w.setValue(v)
 
+
 class FileChooser(QtWidgets.QWidget):
     valueChanged = QtCore.Signal(pathlib.Path)
 
@@ -254,7 +263,7 @@ class FileChooser(QtWidgets.QWidget):
 
         self.textBox = QtWidgets.QLineEdit()
         self.browseButton = QtWidgets.QToolButton()
-        self.browseButton.setText('…')
+        self.browseButton.setText("…")
 
         self.layout().addWidget(self.textBox)
         self.layout().addWidget(self.browseButton)
@@ -264,9 +273,11 @@ class FileChooser(QtWidgets.QWidget):
         self.clear = self.textBox.clear
 
     def _browse(self):
-        selectedFile = QtWidgets.QFileDialog.getOpenFileName(None, 'Open file', str(self.value().parent))
+        selectedFile = QtWidgets.QFileDialog.getOpenFileName(
+            None, "Open file", str(self.value().parent)
+        )
         selectedFile = selectedFile[0]
-        if selectedFile is not None and selectedFile != '':
+        if selectedFile is not None and selectedFile != "":
             selectedFile = pathlib.Path(selectedFile)
 
             self.setValue(selectedFile)
@@ -277,6 +288,7 @@ class FileChooser(QtWidgets.QWidget):
 
     def setValue(self, val):
         self.textBox.setText(str(val))
+
 
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, values, labels=None, parent=None):
@@ -291,9 +303,9 @@ class ComboBox(QtWidgets.QComboBox):
         if labels is None:
             labels = values
 
-        self.addItem('', None)
+        self.addItem("", None)
         self.insertSeparator(1)
-        for i,value in enumerate(values):
+        for i, value in enumerate(values):
             self.addItem(str(labels[i]), value)
 
     def clearValue(self):
@@ -307,6 +319,7 @@ class ComboBox(QtWidgets.QComboBox):
             if val == self.itemData(i):
                 self.setCurrentIndex(i)
                 break
+
 
 class SerialPortChooser(QtWidgets.QWidget):
     portInfos = None
@@ -322,8 +335,8 @@ class SerialPortChooser(QtWidgets.QWidget):
         self.combobox = ComboBox(devices, labels, parent=self)
 
         self.refreshButton = QtWidgets.QToolButton(self)
-        self.refreshButton.setText('🔍')
-        self.refreshButton.setToolTip('Refresh list')
+        self.refreshButton.setText("🔍")
+        self.refreshButton.setToolTip("Refresh list")
         self.refreshButton.clicked.connect(self.refreshPorts)
 
         self.layout().addWidget(self.combobox)
@@ -347,7 +360,7 @@ class SerialPortChooser(QtWidgets.QWidget):
             deviceList.append(portInfo.device)
             name = portInfo.description
             if portInfo.device not in name:
-                name = f'{name} ({portInfo.device})'
+                name = f"{name} ({portInfo.device})"
             nameList.append(name)
 
         return deviceList, nameList
@@ -359,13 +372,13 @@ class SerialPortChooser(QtWidgets.QWidget):
         self.combobox.setFocus()
         self.combobox.showPopup()
 
+
 class BoolSelector(ComboBox):
-    def __init__(self, trueLabel='True', falseLabel='False', parent=None):
+    def __init__(self, trueLabel="True", falseLabel="False", parent=None):
         super().__init__(
-            values=[True, False],
-            labels=[trueLabel, falseLabel],
-            parent=parent
+            values=[True, False], labels=[trueLabel, falseLabel], parent=parent
         )
+
 
 class LineEdit(QtWidgets.QLineEdit):
     def value(self):
@@ -374,9 +387,10 @@ class LineEdit(QtWidgets.QLineEdit):
     def setValue(self, val):
         self.setText(str(val))
 
+
 class SpinBox(QtWidgets.QSpinBox):
-    minimum = -2**30
-    maximum = 2**30
+    minimum = -(2 ** 30)
+    maximum = 2 ** 30
 
     def __init__(self, minimum=None, maximum=None, parent=None):
         super().__init__(parent)
@@ -396,10 +410,11 @@ class SpinBox(QtWidgets.QSpinBox):
         else:
             super().setValue(val)
 
+
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
     decimals = 4
-    minimum = -2**30
-    maximum = 2**30
+    minimum = -(2 ** 30)
+    maximum = 2 ** 30
 
     def __init__(self, decimals=None, minimum=None, maximum=None, parent=None):
         super().__init__(parent)
@@ -423,6 +438,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
         else:
             super().setValue(val)
 
+
 class ColorWidget(QtWidgets.QPushButton):
     valueChanged = QtCore.Signal(tuple)
 
@@ -441,7 +457,9 @@ class ColorWidget(QtWidgets.QPushButton):
             self.dialog.setCurrentColor(QtGui.QColor(*self.colorValue))
             self.dialog.currentColorChanged.connect(self.onColorAdjusted)
 
-        self.dialog.setOption(self.dialog.ColorDialogOption.ShowAlphaChannel, self.hasAlpha)
+        self.dialog.setOption(
+            self.dialog.ColorDialogOption.ShowAlphaChannel, self.hasAlpha
+        )
 
         preservedValue = self.colorValue
         self.dialog.exec_()
@@ -469,7 +487,7 @@ class ColorWidget(QtWidgets.QPushButton):
                 val = typeHelpers.rgb(val)
 
         self.colorValue = tuple(val)
-        self.setText(' %s' % (self.colorValue,))
+        self.setText(" %s" % (self.colorValue,))
 
         pixmap = QtGui.QPixmap(self.height(), self.height())
         pixmap.fill(QtGui.QColor(*val))

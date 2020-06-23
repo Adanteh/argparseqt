@@ -159,16 +159,35 @@ class ArgGroupWidget(QtWidgets.QWidget):
 
     def setValues(self, values):
         for row in range(self.form.layout().rowCount()):
-            itemName = self.form.layout().itemAt(row, QtWidgets.QFormLayout.LabelRole).widget().text()
+            itemName = (
+                self.form.layout()
+                .itemAt(row, QtWidgets.QFormLayout.LabelRole)
+                .widget()
+                .text()
+            )
             if itemName in values:
-                widget = self.form.layout().itemAt(row, QtWidgets.QFormLayout.FieldRole).widget()
+                widget = (
+                    self.form.layout()
+                    .itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                    .widget()
+                )
                 widget.setValue(values[itemName])
 
     def getValues(self):
         values = {}
         for row in range(self.form.layout().rowCount()):
-            itemName = self.form.layout().itemAt(row, QtWidgets.QFormLayout.LabelRole).widget().text()
-            itemValue = self.form.layout().itemAt(row, QtWidgets.QFormLayout.FieldRole).widget().value()
+            itemName = (
+                self.form.layout()
+                .itemAt(row, QtWidgets.QFormLayout.LabelRole)
+                .widget()
+                .text()
+            )
+            itemValue = (
+                self.form.layout()
+                .itemAt(row, QtWidgets.QFormLayout.FieldRole)
+                .widget()
+                .value()
+            )
 
             values[itemName] = itemValue
 
