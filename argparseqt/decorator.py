@@ -23,9 +23,7 @@ class QtArgparsed:
         def wrapper(*args, **kwargs) -> ArgDialog:
             parser: argparse.ArgumentParser = func()
 
-            app = QtArgApp(
-                sys.argv, company=self.company, appname=self.appname
-            )  # noqa: F841
+            app = QtArgApp(sys.argv, company=self.company, appname=self.appname)  # noqa: F841
             dialog = ArgDialog(parser, title=self.title)
             dialog.exec_()
             return dialog

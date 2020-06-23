@@ -16,9 +16,7 @@ from qtpy import QtCore, QtGui, QtWidgets
 from ..parser import typeHelpers
 
 
-def makeWidget(
-    argumentOrType, parent=None, defaultValue=None, choices=None, helpText=None
-):
+def makeWidget(argumentOrType, parent=None, defaultValue=None, choices=None, helpText=None):
     """ Creates and returns a data type-appropriate wrapped-widget
 
         Arguments with finite choices (including booleans) configured will display as a combo box
@@ -198,9 +196,7 @@ class ListWidget(QtWidgets.QWidget):
 
         self.childrenContainer = QtWidgets.QWidget(self)
         self.childrenContainer.setLayout(QtWidgets.QVBoxLayout())
-        self.childrenContainer.layout().setSpacing(
-            int(self.childrenContainer.layout().spacing() / 2)
-        )
+        self.childrenContainer.layout().setSpacing(int(self.childrenContainer.layout().spacing() / 2))
         self.childrenContainer.layout().setContentsMargins(0, 0, 0, 0)
 
         self.addItemButton = QtWidgets.QToolButton(self)
@@ -214,9 +210,7 @@ class ListWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.addItemButton)
 
     def _addKid(self, v=None):
-        listWidgetItem = ListWidgetItem(
-            makeWidget(self.subDataType, self.childrenContainer), self.childrenContainer
-        )
+        listWidgetItem = ListWidgetItem(makeWidget(self.subDataType, self.childrenContainer), self.childrenContainer)
         listWidgetItem.valueChanged.connect(self.onChildValueChanged)
 
         self.childrenContainer.layout().addWidget(listWidgetItem)
@@ -273,9 +267,7 @@ class FileChooser(QtWidgets.QWidget):
         self.clear = self.textBox.clear
 
     def _browse(self):
-        selectedFile = QtWidgets.QFileDialog.getOpenFileName(
-            None, "Open file", str(self.value().parent)
-        )
+        selectedFile = QtWidgets.QFileDialog.getOpenFileName(None, "Open file", str(self.value().parent))
         selectedFile = selectedFile[0]
         if selectedFile is not None and selectedFile != "":
             selectedFile = pathlib.Path(selectedFile)
@@ -375,9 +367,7 @@ class SerialPortChooser(QtWidgets.QWidget):
 
 class BoolSelector(ComboBox):
     def __init__(self, trueLabel="True", falseLabel="False", parent=None):
-        super().__init__(
-            values=[True, False], labels=[trueLabel, falseLabel], parent=parent
-        )
+        super().__init__(values=[True, False], labels=[trueLabel, falseLabel], parent=parent)
 
 
 class LineEdit(QtWidgets.QLineEdit):
@@ -457,9 +447,7 @@ class ColorWidget(QtWidgets.QPushButton):
             self.dialog.setCurrentColor(QtGui.QColor(*self.colorValue))
             self.dialog.currentColorChanged.connect(self.onColorAdjusted)
 
-        self.dialog.setOption(
-            self.dialog.ColorDialogOption.ShowAlphaChannel, self.hasAlpha
-        )
+        self.dialog.setOption(self.dialog.ColorDialogOption.ShowAlphaChannel, self.hasAlpha)
 
         preservedValue = self.colorValue
         self.dialog.exec_()

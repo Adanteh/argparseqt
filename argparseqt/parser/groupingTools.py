@@ -4,7 +4,7 @@
 import argparse
 
 
-def organizeIntoGroups(parser):
+def organizeIntoGroups(parser: argparse.ArgumentParser) -> dict:
     """ Returns a dict where keys are argparse groups and values are dicts of name/argument pairs """
     groups = {}
 
@@ -18,7 +18,7 @@ def organizeIntoGroups(parser):
     return groups
 
 
-def parseIntoGroups(parser):
+def parseIntoGroups(parser: argparse.ArgumentParser) -> dict:
     """ Returns a dict where keys are argparse group names and values are dicts of name/value pairs
 
         Arguments that do not belong to a group will be stored in the top-level dict

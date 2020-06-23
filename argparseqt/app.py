@@ -17,12 +17,8 @@ class QtArgApp(QApplication):
         """
         if company is None:
             company = self.__class__.__name__
-        QSettings.setPath(
-            QSettings.IniFormat, QSettings.UserScope, str(FOLDER.parent / "settings")
-        )
-        self.settings = QSettings(
-            QSettings.IniFormat, QSettings.UserScope, company, appname
-        )
+        QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(FOLDER.parent / "settings"))
+        self.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, company, appname)
         super().__init__(argv)
 
     @staticmethod
